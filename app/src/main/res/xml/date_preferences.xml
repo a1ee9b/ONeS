@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.packagename.DatePreference
+        android:key="pref_date"
+        android:title="Date of the photograph"
+        android:defaultValue="2015-01-01"
+        android:summary="Summary" />
+</PreferenceScreen>
