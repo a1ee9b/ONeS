@@ -2,12 +2,15 @@ package com.github.a1ee9b.ones;
 
 import android.app.DatePickerDialog;
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,63 +29,90 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity {
     private static String TAG = "MainActivity";
     private Camera mCamera;
-    private CameraPreview mPreview;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+    private int year;
+    private int month;
+    private int day;
+    private static String fileName;
+    private static MainActivity context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        context = this;
+
+        /*
+        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        year = Integer.valueOf(sharedPref.getString("date_year", ""));
+        month = Integer.valueOf(sharedPref.getString("date_month", ""));
+        day = Integer.valueOf(sharedPref.getString("date_day", ""));*/
 
         mCamera = getCameraInstance();
         // Camera.Parameters cameraParameters = mCamera.getParameters();
 
-        mPreview = new CameraPreview(this, mCamera);
+        CameraPreview mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
-        preview.addView(mPreview);
-        preview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCamera.takePicture(null, null, mPicture);
-            }
-        });
+        if (preview != null) {
+            preview.addView(mPreview);
+            preview.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mCamera.takePicture(null, null, mPicture);
+                }
+            });
+        }
 
-        addPreferencesFromResource(R.xml.date_preferences);
+//        addPreferencesFromResource(R.xml.date_preferences);
 
-        final DatePreference dp = (DatePreference) findPreference("keyname");
-        dp.setText("2014-08-02");
-        dp.setSummary("2014-08-02");
-        dp.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                //your code to change values.
-                dp.setSummary((String) newValue);
-                return true;
-            }
-        });
+//        final DatePreference dp = (DatePreference) findPreference("keyname");
+//        dp.setText("2014-08-02");
+//        dp.setSummary("2014-08-02");
+//        dp.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+//            @Override
+//            public boolean onPreferenceChange(Preference preference, Object newValue) {
+//                //your code to change values.
+//                dp.setSummary((String) newValue);
+//                return true;
+//            }
+//        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.captureImage);
+        assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DatePickerPreference datePickerPreference = new DatePickerPreference(getApplicationContext());
-                //DialogFragment newFragment = new DatePickerFragment();
-                //newFragment.show(getFragmentManager(), "Date Picker");
+//                DatePickerPreference datePickerPreference = new DatePickerPreference(getApplicationContext());
+                DialogFragment newFragment = new DatePickerFragment();
+                newFragment.show(getFragmentManager(), "Date Picker");
+//
+//                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+//                //set the sharedpref
+//                SharedPreferences.Editor editor = settings.edit();
+//                editor.putString("date_year", "2011");
+//                editor.commit();
 
-                //Snackbar.make(view, "Will take a photo.", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
+//
+//                Snackbar.make(view, "Will take a photo.", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                // Display the fragment as the main content.
+//                getFragmentManager().beginTransaction()
+//                        .replace(android.R.id.content, new SettingsFragment())
+//                        .commit();
             }
         });
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -108,7 +138,30 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
 
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
+            int year = sharedPref.getInt(getString(R.string.year), -1);
+            int month = sharedPref.getInt(getString(R.string.month), -1);
+            int day = sharedPref.getInt(getString(R.string.day), -1);
+
+            final Calendar c = Calendar.getInstance();
+            c.set(year, month, day);
+            // TODO auf Zaehler umstellen
+            fileName = new SimpleDateFormat("yyyyMMdd").format(c.getTime());
+            fileName = "IMG_"+fileName+"_";
+
+            File dir = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_PICTURES), "ONeS");
+            int amountPicturesSameDay = dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.startsWith(fileName);
+                }
+            }).length;
+
+            fileName += amountPicturesSameDay+1;
+            fileName += ".jpg";
+
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, fileName);
             if (pictureFile == null) {
                 Log.d(TAG, "Error creating media file, check storage permissions.");
                 return;
@@ -126,19 +179,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int MEDIA_TYPE_VIDEO = 2;
-
-    /**
-     * Create a file Uri for saving an image or video
-     */
-    private static Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
 
     /**
      * Create a File for saving an image or video
      */
-    private static File getOutputMediaFile(int type) {
+    private static File getOutputMediaFile(int type, String fileName) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -156,14 +201,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Create a media file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "IMG_" + timeStamp + ".jpg");
-        } else if (type == MEDIA_TYPE_VIDEO) {
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
-                    "VID_" + timeStamp + ".mp4");
+                    fileName);
         } else {
             return null;
         }
