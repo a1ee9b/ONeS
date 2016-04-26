@@ -1,26 +1,18 @@
 package com.github.a1ee9b.ones;
 
-import android.app.DatePickerDialog;
+import android.animation.ObjectAnimator;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -33,21 +25,18 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 @SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity {
     private static String TAG = "MainActivity";
+    private static String fileName;
     private Camera mCamera;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
-    private int year;
-    private int month;
-    private int day;
-    private static String fileName;
     private static MainActivity context;
 
     @Override
@@ -56,11 +45,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         context = this;
 
-        /*
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        year = Integer.valueOf(sharedPref.getString("date_year", ""));
-        month = Integer.valueOf(sharedPref.getString("date_month", ""));
-        day = Integer.valueOf(sharedPref.getString("date_day", ""));*/
+        final View flashImage = findViewById(R.id.flashImage);
+        assert flashImage != null;
+        flashImage.setAlpha(0.0f);
 
         mCamera = getCameraInstance();
         // Camera.Parameters cameraParameters = mCamera.getParameters();
@@ -73,48 +60,27 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     mCamera.takePicture(null, null, mPicture);
+
+                    ObjectAnimator anim = ObjectAnimator.ofFloat(flashImage, "alpha", 0f, 1f);
+                    anim.setDuration(300);
+                    anim.start();
+                    ObjectAnimator anim2 = ObjectAnimator.ofFloat(flashImage, "alpha", 1f, 0f);
+                    anim2.setDuration(300);
+                    anim2.start();
                 }
             });
         }
-
-//        addPreferencesFromResource(R.xml.date_preferences);
-
-//        final DatePreference dp = (DatePreference) findPreference("keyname");
-//        dp.setText("2014-08-02");
-//        dp.setSummary("2014-08-02");
-//        dp.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-//            @Override
-//            public boolean onPreferenceChange(Preference preference, Object newValue) {
-//                //your code to change values.
-//                dp.setSummary((String) newValue);
-//                return true;
-//            }
-//        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.captureImage);
         assert fab != null;
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                DatePickerPreference datePickerPreference = new DatePickerPreference(getApplicationContext());
                 DialogFragment newFragment = new DatePickerFragment();
                 newFragment.show(getFragmentManager(), "Date Picker");
-//
-//                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-//                //set the sharedpref
-//                SharedPreferences.Editor editor = settings.edit();
-//                editor.putString("date_year", "2011");
-//                editor.commit();
-
-//
-//                Snackbar.make(view, "Will take a photo.", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                // Display the fragment as the main content.
-//                getFragmentManager().beginTransaction()
-//                        .replace(android.R.id.content, new SettingsFragment())
-//                        .commit();
             }
         });
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -138,30 +104,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
 
-            SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
-            int year = sharedPref.getInt(getString(R.string.year), -1);
-            int month = sharedPref.getInt(getString(R.string.month), -1);
-            int day = sharedPref.getInt(getString(R.string.day), -1);
-
-            final Calendar c = Calendar.getInstance();
-            c.set(year, month, day);
-            // TODO auf Zaehler umstellen
-            fileName = new SimpleDateFormat("yyyyMMdd").format(c.getTime());
-            fileName = "IMG_"+fileName+"_";
-
-            File dir = new File(Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_PICTURES), "ONeS");
-            int amountPicturesSameDay = dir.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.startsWith(fileName);
-                }
-            }).length;
-
-            fileName += amountPicturesSameDay+1;
-            fileName += ".jpg";
-
-            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, fileName);
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
             if (pictureFile == null) {
                 Log.d(TAG, "Error creating media file, check storage permissions.");
                 return;
@@ -183,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Create a File for saving an image or video
      */
-    private static File getOutputMediaFile(int type, String fileName) {
+    private static File getOutputMediaFile(int type) {
         // To be safe, you should check that the SDCard is mounted
         // using Environment.getExternalStorageState() before doing this.
 
@@ -200,7 +143,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        // Create a media file name
+        SharedPreferences sharedPref = context.getPreferences(Context.MODE_PRIVATE);
+        int year = sharedPref.getInt("year", -1);
+        int month = sharedPref.getInt("month", -1);
+        int day = sharedPref.getInt("day", -1);
+
+        final Calendar c = Calendar.getInstance();
+        c.set(year, month, day);
+        fileName = new SimpleDateFormat("yyyyMMdd").format(c.getTime());
+        fileName = "IMG_" + fileName + "_";
+
+        int amountPicturesSameDay = mediaStorageDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(fileName);
+            }
+        }).length;
+
+        fileName += amountPicturesSameDay + 1;
+        fileName += ".jpg";
+
+        // Create a media file
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator +
