@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">ONeS</string>
-    <string name="action_settings">Settings</string>
+    <string name="flasImage_description">white pane to flash when a picture is taken</string>
 </resources>

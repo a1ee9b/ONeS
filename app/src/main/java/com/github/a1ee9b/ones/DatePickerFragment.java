@@ -21,23 +21,21 @@ import java.util.Calendar;
  * A simple {@link Fragment} subclass.
  */
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-    private static String TAG = "DatePickerFragment";
+    private static String TAG = "ONeS - DatePickerFragment";
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("ONeS_Calender", Context.MODE_PRIVATE);
+        int savedYear = sharedPreferences.getInt("year", -1);
+        int savedMonth = sharedPreferences.getInt("month", -1);
+        int savedDay = sharedPreferences.getInt("day", -1);
 
-        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        int year = sharedPref.getInt("year", -1);
-        int month = sharedPref.getInt("month", -1);
-        int day = sharedPref.getInt("day", -1);
+        final Calendar calender = Calendar.getInstance();
+        int year = (savedYear < 0)? calender.get(Calendar.YEAR) : savedYear;
+        int month = (savedMonth < 0)? calender.get(Calendar.MONTH) : savedMonth;
+        int day = (savedDay < 0)? calender.get(Calendar.DAY_OF_MONTH) : savedDay;
 
-        //Use the current date as the default date in the date picker
-        final Calendar c = Calendar.getInstance();
-        int cyear = (year < 0)? c.get(Calendar.YEAR) : year;
-        int cmonth = (month < 0)? c.get(Calendar.MONTH) : month;
-        int cday = (day < 0)? c.get(Calendar.DAY_OF_MONTH) : day;
-
-        return new DatePickerDialog(getActivity(), this, cyear, cmonth, cday);
+        return new DatePickerDialog(getActivity(), this, year, month, day);
     }
 
     public void onDateSet(DatePicker view, int year, int month, int day) {
@@ -46,6 +44,6 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
         editor.putInt("year", year);
         editor.putInt("month", month);
         editor.putInt("day", day);
-        editor.commit();
+        editor.apply();
     }
 }
