@@ -2,16 +2,9 @@ package com.github.a1ee9b.ones;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.View;
 import android.widget.ImageView;
 
-/**
- * Created by Jannik on 28.04.2016.
- */
 public class FlashImage {
     private String TAG = "ONeS - FlashImage";
     private ImageView flashImage;

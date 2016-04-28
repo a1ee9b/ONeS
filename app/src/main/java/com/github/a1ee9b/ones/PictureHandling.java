@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * Created by Jannik on 28.04.2016.
- */
+
 @SuppressWarnings("deprecation")
 public class PictureHandling implements Camera.PictureCallback {
     private String TAG = "ONeS - PictureHandling";

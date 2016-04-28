@@ -32,7 +32,8 @@
             android:id="@+id/flashImage"
             android:layout_gravity="center"
             android:foreground="#ffffff"
-            android:contentDescription="@string/flasImage_description" />
+            android:contentDescription="@string/flasImage_description"
+            android:alpha="0" />
 
     </RelativeLayout>
 

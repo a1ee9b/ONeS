@@ -1,33 +1,16 @@
 package com.github.a1ee9b.ones;
 
-import android.animation.ObjectAnimator;
 import android.app.DialogFragment;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.security.spec.ECField;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-@SuppressWarnings("deprecation")
 public class MainActivity extends AppCompatActivity {
     private static String TAG = "ONeS - MainActivity";
     private CameraPreview cameraPreview;

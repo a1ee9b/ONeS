@@ -1,25 +1,15 @@
 package com.github.a1ee9b.ones;
 
-/**
- * Created by Jannik on 21.12.2015.
- */
-
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.DatePicker;
-import android.app.Dialog;
 
 import java.util.Calendar;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
     private static String TAG = "ONeS - DatePickerFragment";
 

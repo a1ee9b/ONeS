@@ -1,9 +1,5 @@
 package com.github.a1ee9b.ones;
 
-/**
- * Created by Jannik on 21.12.2015.
- */
-
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.hardware.Camera;
@@ -13,9 +9,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 
-/**
- * A basic Camera preview class
- */
 @SuppressWarnings("deprecation")
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private static String TAG = "ONeS - CameraPreview";
